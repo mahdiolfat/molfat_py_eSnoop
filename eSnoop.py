@@ -7,6 +7,9 @@ import re
 import ssl
 import signal
 
+# TODO:
+# best way to figure out unicode utf08 combination that results in least number of errors 
+
 FNAMEIDX = 1
 LNAMEIDX = 2
 TITLEIDX = 3
@@ -21,8 +24,10 @@ EMAILIDX = 11
 
 FILE = 'M&M Pre Attendee List 6_30.xlsx'
 
-STARTIDX = 40
-ENDIDX = 658
+STARTIDX = 374
+ENDIDX = 685
+
+REGEX_EMAIL = r'\w+[.|\w]\w+@\w+[.]\w+[.|\w+]\w+'
 
 def signal_handler(signal, frame):
     print('Saving Document')
@@ -95,20 +100,17 @@ class EmailSnooper:
     def queryTxt(self, person):
         query = ""
         if person.fName is not None:
-            query += person.fName
+            query += '"' + person.fName
         if person.lName is not None:
-            query += " " + person.lName
+            query += " " + person.lName + '"'
         if person.affiliation is not None:
             query += " " + person.affiliation
-        #if person.title is not None:
-        #    query += " " + person.title
 
         return query
 
     def scrapeAllPersons(self):
         for person in self.persons:
             emails_str = ""
-            print
             emails = self.scrapePerson(person)
 
             if len(emails) is 0:
@@ -122,12 +124,11 @@ class EmailSnooper:
             self.ws.cell(row = person.idx, column = EMAILIDX).value = emails_str
 
     def scrapePerson(self, person):
-        print type(person)
         if not isinstance(person, Person):
             print "Wrong person object provided"
             return
 
-        print "Email for " + person.fName + " " + person.lName
+        print "Finding emails for " + person.fName + " " + person.lName + ". ID: " + str(person.idx) + '\n\n'
         # conduct a google search
         d = {}
         try:
@@ -142,12 +143,11 @@ class EmailSnooper:
                         text = unicode(response.read(), "utf-8", errors='ignore')
                     except UnicodeError as e:
                         print e
-                        print "FUUUUUCK"
                     except KeyError as e:
                         print e
 
                     #print text
-                    emails = re.findall(r'\w+[.|\w]\w+@\w+[.]\w+[.|\w+]\w+', text)
+                    emails = re.findall(REGEX_EMAIL, text, re.I)
                     for email in emails:
                         d[email] = 1
                         #print "EMAIL FOUND: " + email
@@ -162,6 +162,8 @@ class EmailSnooper:
                     self.wb.save(FILE)
         except KeyError as e:
             print e
+        except UnicodeEncodeError as e:
+            print e
 
         return d.keys()
 
@@ -172,9 +174,7 @@ if __name__ == "__main__":
     # print all persons' information
     #es.printPersons()
 
-    #es.scrapePerson(es.persons[2])
     es.scrapeAllPersons()
 
-    #print es.persons[0].emails
     es.wb.save(FILE)
 
