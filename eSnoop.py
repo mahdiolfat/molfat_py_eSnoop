@@ -1,3 +1,8 @@
+# TODO:
+## - best way to figure out unicode utf08 combination that results in least number of errors
+## - refine regex
+## - clean up and comment.
+
 from google import search
 from openpyxl import load_workbook
 import urllib2
@@ -7,8 +12,6 @@ import re
 import ssl
 import signal
 
-# TODO:
-# best way to figure out unicode utf08 combination that results in least number of errors 
 
 FNAMEIDX = 1
 LNAMEIDX = 2
@@ -22,7 +25,7 @@ ZIPIDX = 9
 COUNTRYIDX = 10
 EMAILIDX = 11
 
-FILE = 'M&M Pre Attendee List 6_30.xlsx'
+FILE = 'test.xlsx'
 
 STARTIDX = 374
 ENDIDX = 685

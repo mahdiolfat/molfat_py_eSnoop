@@ -20,7 +20,7 @@ ZIPIDX = 9
 COUNTRYIDX = 10
 EMAILIDX = 11
 
-FILE = 'M&M Pre Attendee List 6_30.xlsx'
+FILE = 'test.xlsx'
 
 STARTIDX = 342
 ENDIDX = 350
@@ -147,7 +147,7 @@ class ScrapePerson(Thread):
 	def __init__(self, person):
 		super(ScrapePerson, self).__init__()
 		self.person = person
-		
+
 	def run(self):
 		person_name = "Finding emails for " + self.person.fName + " " + self.person.lName
 		print person_name + ". ID: " + str(self.person.idx) + '\n\n'
@@ -180,7 +180,7 @@ class ScrapePerson(Thread):
 			    es.wb.save(FILE)
 		except KeyError as e:
 		    print e
-		
+
 		print person_name + "emails found: "
 		print d.keys()
 		print "\n\n"
@@ -188,10 +188,10 @@ class ScrapePerson(Thread):
 		email_str = ""
 		for email in d.keys():
 			email_str += email + ", "
-			
+
 		es.ws.cell(row = self.person.idx, column = EMAILIDX).value = email_str
 		es.wb.save(FILE)
-		
+
 class Person:
     def __init__(self,  idx,
                         fName = '',
@@ -231,7 +231,7 @@ if __name__ == "__main__":
 		t = ScrapePerson(person)
 		threads.append(t)
 		t.start()
-		
+
 	for t in threads:
 		t.join()
 
